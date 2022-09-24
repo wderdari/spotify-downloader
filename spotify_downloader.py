@@ -30,7 +30,7 @@ def current_top_tracks():
     # Authentication allowing reading of playlists as defined by scope.
     scope = "playlist-read-collaborative"
 
-    # Client ID
+    # client ID & client secret to be filled by user.
     sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id="",
                                                    client_secret="",
                                                    redirect_uri="http://127.0.0.1:8080", scope=scope))
