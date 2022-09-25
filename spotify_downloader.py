@@ -5,6 +5,9 @@ import yt_dlp
 from spotipy.oauth2 import SpotifyOAuth
 from youtubesearchpython import VideosSearch
 
+# SECRET_KEY used for server-server authentication.
+SECRET_KEY = os.environ.get("SECRET_KEY")
+
 
 class MyLogger(object):
     def debug(self, msg):
@@ -33,7 +36,7 @@ def current_top_tracks():
 
     # client ID & client secret to be filled by user.
     sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id="e5556c4f8aa1455a9d2f4b5b84c70dfc",
-                                                   client_secret="a1f9454c3792454989bb858a3ed9b015",
+                                                   client_secret=SECRET_KEY,
                                                    redirect_uri="http://127.0.0.1:8080", scope=scope))
 
     # API call to retrieve requested data. Formatted into list by sp
@@ -52,7 +55,7 @@ def playlist_tracks():
     scope = "playlist-read-private"
 
     sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id="e5556c4f8aa1455a9d2f4b5b84c70dfc",
-                                                   client_secret=os.environ.get("SECRET_KEY"),
+                                                   client_secret=SECRET_KEY,
                                                    redirect_uri="http://127.0.0.1:8080", scope=scope))
 
     # API call to retrieve requested data. Formatted into list by Spotipy.
