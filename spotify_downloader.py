@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+import os
 import spotipy
 import yt_dlp
 from spotipy.oauth2 import SpotifyOAuth
@@ -31,8 +32,8 @@ def current_top_tracks():
     scope = "playlist-read-collaborative"
 
     # client ID & client secret to be filled by user.
-    sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id="",
-                                                   client_secret="",
+    sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id="e5556c4f8aa1455a9d2f4b5b84c70dfc",
+                                                   client_secret="a1f9454c3792454989bb858a3ed9b015",
                                                    redirect_uri="http://127.0.0.1:8080", scope=scope))
 
     # API call to retrieve requested data. Formatted into list by sp
@@ -49,8 +50,9 @@ def current_top_tracks():
 def playlist_tracks():
     # Authentication allowing reading of playlists as defined by scope.
     scope = "playlist-read-private"
+
     sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id="e5556c4f8aa1455a9d2f4b5b84c70dfc",
-                                                   client_secret="87b423f05fd24d44a3be426fd42df827",
+                                                   client_secret=os.environ.get("SECRET_KEY"),
                                                    redirect_uri="http://127.0.0.1:8080", scope=scope))
 
     # API call to retrieve requested data. Formatted into list by Spotipy.
@@ -90,6 +92,8 @@ def find_url(list_names):
 
 
 if __name__ == '__main__':
+    print(os.environ.get("SECRET_KEY"))
+
     track_names = playlist_tracks()
     urls = find_url(track_names)
 
