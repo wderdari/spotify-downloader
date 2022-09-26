@@ -104,7 +104,6 @@ if __name__ == '__main__':
         'format': 'bestaudio/best',
         'forcefilename': True,
         'restrictfilenames': True,
-        'outtmpl': "%(title)s.",
         # Set desired path for storing temp and .mp3 files.
         # "paths": {"temp": "/Users/wassimderdari/Documents/Python/spotify_downloader/Songs",
         #           "home": "/Users/wassimderdari/Documents/Python/spotify_downloader/Songs"},
@@ -120,4 +119,8 @@ if __name__ == '__main__':
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         print('Downloading tracks...')
-        ydl.download(urls)
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            for i in range(len(track_names)):
+                # Force filename
+                ydl_opts['outtmpl']['default'] = track_names[i] + '.'
+                ydl.download(urls[i])
