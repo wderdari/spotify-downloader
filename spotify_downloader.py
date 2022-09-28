@@ -44,9 +44,10 @@ def current_top_tracks():
         limit = ""
         try:
             limit = int(input("-- Please specify the amount of top listened to tracks you would like to download "
-                              "--\n"))
+                              "--"))
         except ValueError:
             print("Invalid input. Please specify a number.")
+            continue
         break
 
     # API call to retrieve requested data. Formatted into list by sp
@@ -68,20 +69,27 @@ def playlist_tracks():
                                                    redirect_uri="http://127.0.0.1:8080", scope=scope))
 
     # API call to retrieve requested data. Formatted into list by Spotipy.
-    get_ids = sp.current_user_playlists(limit=5)
+    get_ids = sp.current_user_playlists()
     playlist_ids = []
     for ids in get_ids['items']:
         playlist_ids.append(ids['id'])
 
     print("-- Please specify the playlist index you would like to download."
-          "--\n")
+          "--")
     for i in range(len(playlist_ids)):
         print(f"[{i}] - " + get_ids['items'][i]['name'])
 
-    index = int(input())
+    index = None
+    while True:
+        try:
+            index = int(input())
+        except ValueError:
+            print("Invalid input. Please specify a number.")
+            continue
+        break
+
     # First parameter specifies playlist ID. A public playlist only, authentication required for private.
     tracks = sp.playlist_items(playlist_ids[index], limit=5)
-
     track_names = []
 
     for i in tracks['items']:
