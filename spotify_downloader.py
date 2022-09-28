@@ -131,8 +131,8 @@ if __name__ == '__main__':
         'forcefilename': True,
         'restrictfilenames': True,
         # Set desired path for storing temp and .mp3 files.
-        "paths": {"temp": "/Users/wassimderdari/Documents/Python/spotify_downloader/Songs",
-                  "home": "/Users/wassimderdari/Documents/Projects/Songs"},
+        # "paths": {"temp": "/Users/wassimderdari/Documents/Python/spotify_downloader/Songs",
+        #           "home": "/Users/wassimderdari/Documents/Projects/Songs"},
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',
