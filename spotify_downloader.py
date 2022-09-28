@@ -39,8 +39,16 @@ def current_top_tracks():
                                                    client_secret=SECRET_KEY,
                                                    redirect_uri="http://127.0.0.1:8080", scope=scope))
 
+    while True:
+        limit = int(input("-- Please specify the amount of top listened to tracks you would like to download "
+                          "--\n"))
+        if type(limit) != type(int):
+            print("Invalid input. Please specify a number.")
+        else:
+            break
+
     # API call to retrieve requested data. Formatted into list by sp
-    data = sp.current_user_top_tracks(limit=10)
+    data = sp.current_user_top_tracks(limit=limit)
 
     track_names = []
     # Retrieves the track name and artists and adds it to list.
@@ -88,8 +96,8 @@ def find_url(list_names):
 
     track_urls = []
 
-    for results in track_list:
-        track_urls.append(results['result'][0]['link'])
+    for results in track_list['result']:
+        track_urls.append(results[0]['link'])
 
     return track_urls
 
@@ -105,8 +113,8 @@ if __name__ == '__main__':
         'forcefilename': True,
         'restrictfilenames': True,
         # Set desired path for storing temp and .mp3 files.
-        # "paths": {"temp": "/Users/wassimderdari/Documents/Python/spotify_downloader/Songs",
-        #           "home": "/Users/wassimderdari/Documents/Python/spotify_downloader/Songs"},
+        "paths": {"temp": "/Users/wassimderdari/Documents/Projects/Songs",
+                  "home": "/Users/wassimderdari/Documents/Python/spotify_downloader/Songs"},
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',
