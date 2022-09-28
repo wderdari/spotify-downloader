@@ -9,15 +9,16 @@ from youtubesearchpython import VideosSearch
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
 
+def error(msg):
+    print(msg)
+
+
 class MyLogger(object):
     def debug(self, msg):
         pass
 
     def warning(self, msg):
         pass
-
-    def error(self, msg):
-        print(msg)
 
 
 def get_top_tracks(track_lists):
@@ -32,7 +33,7 @@ def my_hook(d):
 
 def current_top_tracks():
     # Authentication allowing reading of playlists as defined by scope.
-    scope = "playlist-read-collaborative"
+    scope = "user-top-read"
 
     # client ID & client secret to be filled by user.
     sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id="e5556c4f8aa1455a9d2f4b5b84c70dfc",
@@ -49,13 +50,11 @@ def current_top_tracks():
         break
 
     # API call to retrieve requested data. Formatted into list by sp
-    data = sp.current_user_top_tracks(limit=5)
+    data = sp.current_user_top_tracks(limit=limit)
     track_name = []
     # Retrieves the track name and artists and adds it to list.
     for item in data['items']:
-        track_names.append(item['artists'][0]['name'] + " - " + item['name'])
-
-    print(track_name)
+        track_name.append(item['artists'][0]['name'] + " - " + item['name'])
 
     return track_name
 
@@ -71,32 +70,17 @@ def playlist_tracks():
     # API call to retrieve requested data. Formatted into list by Spotipy.
     get_ids = sp.current_user_playlists(limit=5)
     playlist_ids = []
-    for identifier in get_ids['items']:
-        playlist_ids.append(identifier['id'])
-
-
-
-    playlist_dict = {}
-
-    for id, name in enumerate(get_ids['items']):
-        playlist_dict.update({id: name['name']})
+    for ids in get_ids['items']:
+        playlist_ids.append(ids['id'])
 
     print("-- Please specify the playlist index you would like to download."
           "--\n")
     for i in range(len(playlist_ids)):
-        print(f"[{i}] - " + playlist_dict.get(i))
+        print(f"[{i}] - " + get_ids['items'][i]['name'])
 
-    while True:
-        playlist_name = None
-        try:
-            playlist_name = int(input("-- Please specify the playlist index you would like to download."
-                                      "--\n"))
-        except ValueError:
-            print("Invalid input. Please specify a number.")
-        break
-
+    index = int(input())
     # First parameter specifies playlist ID. A public playlist only, authentication required for private.
-    tracks = sp.playlist_items("4IrbtF43ZGjnJOxquLaJE0", limit=10)
+    tracks = sp.playlist_items(playlist_ids[index], limit=5)
 
     track_names = []
 
@@ -107,20 +91,15 @@ def playlist_tracks():
 
 
 # Retrieves top result of YouTube search and adds it to a list containing URLs.
-def find_url(list_names):
-    track_list = []
+def find_url(tracks):
+    track_url = []
 
-    for i in range(len(list_names)):
-        video_search = VideosSearch(list_names[i], limit=1)
-        track_list.append(video_search.result())
-        i += 1
+    # Retrives URL for each track.
+    for url in range(len(tracks)):
+        video_search = VideosSearch(tracks[url], limit=len(tracks))
+        track_url.append(video_search.result().get('result')[0]['id'])
 
-    track_urls = []
-
-    for results in track_list:
-        track_urls.append(results['result'][0]['link'])
-
-    return track_urls
+    return track_url
 
 
 if __name__ == '__main__':
@@ -144,8 +123,8 @@ if __name__ == '__main__':
         'forcefilename': True,
         'restrictfilenames': True,
         # Set desired path for storing temp and .mp3 files.
-        "paths": {"temp": "/Users/wassimderdari/Documents/Projects/Songs",
-                  "home": "/Users/wassimderdari/Documents/Python/spotify_downloader/Songs"},
+        "paths": {"temp": "/Users/wassimderdari/Documents/Python/spotify_downloader/Songs",
+                  "home": "/Users/wassimderdari/Documents/Projects/Songs"},
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',
