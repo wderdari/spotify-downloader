@@ -40,22 +40,24 @@ def current_top_tracks():
                                                    redirect_uri="http://127.0.0.1:8080", scope=scope))
 
     while True:
-        limit = int(input("-- Please specify the amount of top listened to tracks you would like to download "
-                          "--\n"))
-        if type(limit) != type(int):
+        limit = ""
+        try:
+            limit = int(input("-- Please specify the amount of top listened to tracks you would like to download "
+                              "--\n"))
+        except ValueError:
             print("Invalid input. Please specify a number.")
-        else:
-            break
+        break
 
     # API call to retrieve requested data. Formatted into list by sp
-    data = sp.current_user_top_tracks(limit=limit)
-
-    track_names = []
+    data = sp.current_user_top_tracks(limit=5)
+    track_name = []
     # Retrieves the track name and artists and adds it to list.
     for item in data['items']:
         track_names.append(item['artists'][0]['name'] + " - " + item['name'])
 
-    return track_names
+    print(track_name)
+
+    return track_name
 
 
 def playlist_tracks():
@@ -67,12 +69,31 @@ def playlist_tracks():
                                                    redirect_uri="http://127.0.0.1:8080", scope=scope))
 
     # API call to retrieve requested data. Formatted into list by Spotipy.
-    get_ids = sp.current_user_playlists(limit=10)
+    get_ids = sp.current_user_playlists(limit=5)
     playlist_ids = []
     for identifier in get_ids['items']:
         playlist_ids.append(identifier['id'])
 
-    print(playlist_ids)
+
+
+    playlist_dict = {}
+
+    for id, name in enumerate(get_ids['items']):
+        playlist_dict.update({id: name['name']})
+
+    print("-- Please specify the playlist index you would like to download."
+          "--\n")
+    for i in range(len(playlist_ids)):
+        print(f"[{i}] - " + playlist_dict.get(i))
+
+    while True:
+        playlist_name = None
+        try:
+            playlist_name = int(input("-- Please specify the playlist index you would like to download."
+                                      "--\n"))
+        except ValueError:
+            print("Invalid input. Please specify a number.")
+        break
 
     # First parameter specifies playlist ID. A public playlist only, authentication required for private.
     tracks = sp.playlist_items("4IrbtF43ZGjnJOxquLaJE0", limit=10)
@@ -96,16 +117,26 @@ def find_url(list_names):
 
     track_urls = []
 
-    for results in track_list['result']:
-        track_urls.append(results[0]['link'])
+    for results in track_list:
+        track_urls.append(results['result'][0]['link'])
 
     return track_urls
 
 
 if __name__ == '__main__':
-    print(os.environ.get("SECRET_KEY"))
+    while True:
+        scope_input = input("-- Please select your choice --\n"
+                            "[0] - Download Top Listened Tracks\n[1] - Download Playlist\n")
+        match scope_input:
+            case "0":
+                track_names = current_top_tracks()
+                break
+            case "1":
+                track_names = playlist_tracks()
+                break
+            case _:
+                print("Invalid choice\n")
 
-    track_names = playlist_tracks()
     urls = find_url(track_names)
 
     ydl_opts = {
@@ -127,8 +158,7 @@ if __name__ == '__main__':
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         print('Downloading tracks...')
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            for i in range(len(track_names)):
-                # Force filename
-                ydl_opts['outtmpl']['default'] = track_names[i] + '.'
-                ydl.download(urls[i])
+        for i in range(len(track_names)):
+            # Force filename
+            ydl_opts['outtmpl']['default'] = track_names[i] + '.'
+            ydl.download(urls[i])
