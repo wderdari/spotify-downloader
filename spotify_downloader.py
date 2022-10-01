@@ -2,15 +2,12 @@ from __future__ import unicode_literals
 import os
 import spotipy
 import yt_dlp
-from spotipy.oauth2 import SpotifyOAuth
+from spotipy.oauth2 import SpotifyOAuth, SpotifyClientCredentials
 from youtubesearchpython import VideosSearch
-
 # SECRET_KEY used for server-server authentication.
 SECRET_KEY = os.environ.get("SECRET_KEY")
 
 
-def error(msg):
-    print(msg)
 
 
 class MyLogger(object):
@@ -20,16 +17,21 @@ class MyLogger(object):
     def warning(self, msg):
         pass
 
+    def error(self, msg):
+        pass
+
 
 def get_top_tracks(track_lists):
     return track_lists
 
 
 def my_hook(d):
+    # if d['status'] == 'downloading':
+    #     print(f'Downloading file...: Speed: {(str(d["speed"])[:2])} mb/s ETA: {d["eta"]} second(s)')
+
     if d['status'] == 'finished':
         print("\nSuccessfully downloaded, proceeding with conversion.\n" + "Percentage Complete: " + d[
             '_percent_str'] + "\n")
-
 
 def current_top_tracks():
     # Authentication allowing reading of playlists as defined by scope.
@@ -38,13 +40,14 @@ def current_top_tracks():
     # client ID & client secret to be filled by user.
     sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id="e5556c4f8aa1455a9d2f4b5b84c70dfc",
                                                    client_secret=SECRET_KEY,
-                                                   redirect_uri="http://127.0.0.1:8080", scope=scope))
+                                                   redirect_uri="http://127.0.0.1:1010", scope=scope))
+
 
     while True:
         limit = ""
         try:
-            limit = int(input("-- Please specify the amount of top listened to tracks you would like to download "
-                              "--"))
+            limit = int(input("--Please specify the amount of top listened to tracks you would like to download"
+                              "--\n"))
         except ValueError:
             print("Invalid input. Please specify a number.")
             continue
@@ -62,11 +65,14 @@ def current_top_tracks():
 
 def playlist_tracks():
     # Authentication allowing reading of playlists as defined by scope.
-    scope = "playlist-read-private"
+    scope = "playlist-read-public1"
 
-    sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id="e5556c4f8aa1455a9d2f4b5b84c70dfc",
-                                                   client_secret=SECRET_KEY,
-                                                   redirect_uri="http://127.0.0.1:8080", scope=scope))
+    # sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id="e5556c4f8aa1455a9d2f4b5b84c70dfc",
+    #                                                client_secret=SECRET_KEY,
+    #                                                redirect_uri="http://127.0.0.1:8080", scope=scope))
+
+    sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id="e5556c4f8aa1455a9d2f4b5b84c70dfc",
+                                                               client_secret=SECRET_KEY))
 
     # API call to retrieve requested data. Formatted into list by Spotipy.
     get_ids = sp.current_user_playlists()
@@ -74,8 +80,7 @@ def playlist_tracks():
     for ids in get_ids['items']:
         playlist_ids.append(ids['id'])
 
-    print("-- Please specify the playlist index you would like to download."
-          "--")
+    print("--Please specify the playlist index you would like to download--")
     for i in range(len(playlist_ids)):
         print(f"[{i}] - " + get_ids['items'][i]['name'])
 
@@ -112,7 +117,7 @@ def find_url(tracks):
 
 if __name__ == '__main__':
     while True:
-        scope_input = input("-- Please select your choice --\n"
+        scope_input = input("--Please select your choice --\n"
                             "[0] - Download Top Listened Tracks\n[1] - Download Playlist\n")
         match scope_input:
             case "0":
@@ -131,8 +136,8 @@ if __name__ == '__main__':
         'forcefilename': True,
         'restrictfilenames': True,
         # Set desired path for storing temp and .mp3 files.
-        # "paths": {"temp": "/Users/wassimderdari/Documents/Python/spotify_downloader/Songs",
-        #           "home": "/Users/wassimderdari/Documents/Projects/Songs"},
+        "paths": {"temp": "/Users/wassimderdari/Documents/Python/spotify_downloader/Songs",
+                  "home": "/Users/wassimderdari/Documents/Projects/Songs"},
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',
