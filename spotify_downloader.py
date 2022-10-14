@@ -1,3 +1,6 @@
+# For demonstration purposes only.
+# This program will not work without access to the releveant Spotify API keys.
+
 from __future__ import unicode_literals
 import os
 import spotipy
@@ -37,7 +40,7 @@ def current_top_tracks():
     # Authentication allowing reading of playlists as defined by scope.
     scope = "user-top-read"
 
-    # client ID & client secret to be filled by user.
+    # client ID & client secret. Stored as local enviroment variable.
     sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id="e5556c4f8aa1455a9d2f4b5b84c70dfc",
                                                    client_secret=SECRET_KEY,
                                                    redirect_uri="http://127.0.0.1:1010", scope=scope))
@@ -70,7 +73,8 @@ def playlist_tracks():
     # sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id="e5556c4f8aa1455a9d2f4b5b84c70dfc",
     #                                                client_secret=SECRET_KEY,
     #                                                redirect_uri="http://127.0.0.1:8080", scope=scope))
-
+    
+    
     sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id="e5556c4f8aa1455a9d2f4b5b84c70dfc",
                                                                client_secret=SECRET_KEY))
 
@@ -136,6 +140,7 @@ if __name__ == '__main__':
         'forcefilename': True,
         'restrictfilenames': True,
         # Set desired path for storing temp and .mp3 files.
+        # Removing "paths" key will download the files in current directory. 
         "paths": {"temp": "/Users/wassimderdari/Documents/Python/spotify_downloader/Songs",
                   "home": "/Users/wassimderdari/Documents/Projects/Songs"},
         'postprocessors': [{
@@ -154,3 +159,5 @@ if __name__ == '__main__':
             # Force filename
             ydl_opts['outtmpl']['default'] = track_names[i] + '.'
             ydl.download(urls[i])
+
+   # Multithreading to be implemented.
