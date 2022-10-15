@@ -5,10 +5,12 @@ from __future__ import unicode_literals
 import os
 import spotipy
 import yt_dlp
-from spotipy.oauth2 import SpotifyOAuth, SpotifyClientCredentials
+from spotipy.oauth2 import SpotifyOAuth
 from youtubesearchpython import VideosSearch
-# SECRET_KEY used for server-server authentication.
+
+# SECRET_KEY used for client-server authentication.
 SECRET_KEY = os.environ.get("SECRET_KEY")
+CLIENT_KEY = os.environ.get("CLIENT_KEY")
 
 
 
@@ -33,7 +35,7 @@ def my_hook(d):
     #     print(f'Downloading file...: Speed: {(str(d["speed"])[:2])} mb/s ETA: {d["eta"]} second(s)')
 
     if d['status'] == 'finished':
-        print("\nSuccessfully downloaded, proceeding with conversion.\n" + "Percentage Complete: " + d[
+        print(f"\nSuccessfully downloaded {d['filename']}, proceeding with conversion.\n" + "Percentage Complete: " + d[
             '_percent_str'] + "\n")
 
 def current_top_tracks():
@@ -41,7 +43,7 @@ def current_top_tracks():
     scope = "user-top-read"
 
     # client ID & client secret. Stored as local enviroment variable.
-    sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id="e5556c4f8aa1455a9d2f4b5b84c70dfc",
+    sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=CLIENT_KEY,
                                                    client_secret=SECRET_KEY,
                                                    redirect_uri="http://127.0.0.1:1010", scope=scope))
 
@@ -68,18 +70,17 @@ def current_top_tracks():
 
 def playlist_tracks():
     # Authentication allowing reading of playlists as defined by scope.
-    scope = "playlist-read-public1"
+    scope = "playlist-read-private"
 
-    # sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id="e5556c4f8aa1455a9d2f4b5b84c70dfc",
-    #                                                client_secret=SECRET_KEY,
-    #                                                redirect_uri="http://127.0.0.1:8080", scope=scope))
+    sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=CLIENT_KEY,
+                                                   client_secret=SECRET_KEY,
+                                                   redirect_uri="http://127.0.0.1:8080", scope=scope))
     
     
-    sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id="e5556c4f8aa1455a9d2f4b5b84c70dfc",
-                                                               client_secret=SECRET_KEY))
+
 
     # API call to retrieve requested data. Formatted into list by Spotipy.
-    get_ids = sp.current_user_playlists()
+    get_ids = sp.current_user_playlists(limit=5)
     playlist_ids = []
     for ids in get_ids['items']:
         playlist_ids.append(ids['id'])
@@ -121,7 +122,7 @@ def find_url(tracks):
 
 if __name__ == '__main__':
     while True:
-        scope_input = input("--Please select your choice --\n"
+        scope_input = input("--Please select your choice--\n"
                             "[0] - Download Top Listened Tracks\n[1] - Download Playlist\n")
         match scope_input:
             case "0":
@@ -141,8 +142,8 @@ if __name__ == '__main__':
         'restrictfilenames': True,
         # Set desired path for storing temp and .mp3 files.
         # Removing "paths" key will download the files in current directory. 
-        "paths": {"temp": "/Users/wassimderdari/Documents/Python/spotify_downloader/Songs",
-                  "home": "/Users/wassimderdari/Documents/Projects/Songs"},
+        # "paths": {"temp": "/Users/wassimderdari/Documents/Python/spotify_downloader/Songs",
+        #           "home": "/Users/wassimderdari/Documents/Projects/Songs"},
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',
